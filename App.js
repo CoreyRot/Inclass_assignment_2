@@ -1,101 +1,75 @@
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, TouchableOpacity, View, Animated, Image, Easing, Dimensions } from 'react-native';
-var { width, height } = Dimensions.get('window');
+import { StyleSheet, Text, View, Easing, Animated, // Button,
+ScrollView } from 'react-native';
+import Button from 'react-native-button';
 
 export default class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      fadeValue: new Animated.Value(0),
-      xValue: new Animated.Value(0),
-      springValue: new Animated.Value(0.5),
-    }
+  
+  constructor () {
+  	super()
+    this.animatedValue = new Animated.Value(0)
   }
-  _fadeAnimation = () => {
-    // alert("Press Fade!");
-    Animated.timing(this.state.fadeValue, {
-      toValue: 1,
-      duration: 1200, //1000 miliseconds = 1 second
-    }).start();
+  
+  animate = easing => {
+    this.animatedValue.setValue(0)
+      Animated.timing(
+        this.animatedValue,
+        {
+          toValue: 1,
+          duration: 1000,
+          easing
+        }
+    ).start()
   }
-  _moveAnimation = () => {
-    Animated.timing(this.state.xValue, {
-      toValue: width - 100,
-      duration: 1000,
-      // easing: Easing.linear,      
-      easing: Easing.back(),     
-      // easing: Easing.cubic,      
-    }).start(() => {
-      //Call after finish this animation !
-      Animated.timing(this.state.xValue, {
-        toValue: 0,
-        duration: 1000,
-        // easing: Easing.linear,
-        easing: Easing.back(),     
-        // delay: 1000,//run after 1 seconds
-      }).start(() => {
-        this._moveAnimation();
-      });
-    });
-  }
-  _springAnimation = () => {
-    Animated.spring(this.state.springValue,{
-        toValue: 1.5,
-        friction: 1
-      }).start();
-  }
-  render() {
+  
+  render () {
+    const marginLeft = this.animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 260]
+    })
+    
     return (
       <View style={styles.container}>
-        {/* <Animated.View style={[styles.animationView, 
-          // {opacity: this.state.fadeValue}
-          { left: this.state.xValue }
-        ]}>
-        </Animated.View> */}
-        <Animated.Image
-          source={require('./assets/icons8-react-native.png')}
-          style={[styles.imageView, 
-            // { left: this.state.xValue }
-            { transform: [{ scale: this.state.springValue }], alignSelf: 'center' }
-          ]}>
-        </Animated.Image>
-        <TouchableOpacity style={styles.button}
-          onPress={this._springAnimation}
-        >
-          <Text style={styles.buttonText}>Animate</Text>
-        </TouchableOpacity>
+        <Text style={{textAlign: 'center', fontSize: 30}}>Plaaaaaayyyyyyy Time!!</Text>
+        <Animated.View style={[styles.block, {marginLeft} ]} />
+        <ScrollView>
+      		<MyButton style={styles.button} title='Bounce' onPress={this.animate.bind(this, Easing.bounce)} />
+    		  <MyButton style={styles.button} title='Cubic' onPress={this.animate.bind(this, Easing.cubic)} />
+          <MyButton style={styles.button} title='Back' onPress={this.animate.bind(this, Easing.back(2))} />
+          <MyButton style={styles.button} title='Elastic' onPress={this.animate.bind(this, Easing.elastic(2))} />
+      	  <MyButton style={styles.button} title='Ease' onPress={this.animate.bind(this, Easing.ease)} />
+				  <MyButton style={styles.button} title='Linear' onPress={this.animate.bind(this, Easing.linear)} /> 
+      	</ScrollView>
       </View>
     );
   }
 }
 
-const styles = StyleSheet.create({
+const MyButton = ({onPress, title, style}) => (
+	<Button style={style} onPress={onPress}>
+    {title}
+  </Button>
+)
+
+var styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    // alignItems: 'center',    
-  },  
-  animationView: {
-    width: 100,
-    height: 100,
-    backgroundColor: 'skyblue',    
+    marginTop: 80
   },
   button: {
-    backgroundColor: "steelblue",
-    height: 45,
-    marginTop: 20,    
-    alignSelf: "center"
+    color: '#f8f8ff',
+  	height: 80,
+    backgroundColor: '#696969',
+    borderRadius: 4,
+    marginTop: 20,
+    paddingTop: 20,
+    fontSize: 30
   },
-  buttonText: {
-    color: 'white',
-    padding: 12,
-    paddingHorizontal: 20,
-    fontWeight: 'bold',
-    fontSize: 18
-  },
-  imageView: {
-    width: 100,
-    height: 100,
-    backgroundColor: 'transparent',
+  block: {
+    marginTop: 30,
+    alignSelf: "center",
+  	width: 100,
+    height: 80,
+    backgroundColor: 'black'
   }
 });
